@@ -19,6 +19,7 @@ const bookType = 'Romance'
 const navigationBarSelector = '#site-header > nav';
 const allBooksLinkSelector = 'a[href="/catalog"]';
 const loginButtonLinkSelector = 'a[href="/login"]';
+const logoutButtonLinkSelector = 'a[id="logoutBtn"]';
 const registerButtonLinkSelector = 'a[href="/register"]';
 const myBooksLinkSelector = 'a[href="/profile"]';
 const addBookLinkSelector = 'a[href="/create"]'
@@ -330,7 +331,7 @@ test('Verify Details button works for guest', async ({ page }) => {
     expect(detailsBookTitle).toContain('Test Book');
 });
 
-test('Verify Details page display all book information', async({page})=>{
+test('Verify Details page display all book information', async ({ page }) => {
     await page.goto(pageAllBooksUrl);
     await page.click(allBooksLinkSelector);
     await page.waitForSelector('.otherBooks');
@@ -341,5 +342,97 @@ test('Verify Details page display all book information', async({page})=>{
     const detailsBookImage = await page.textContent('.img');
     expect(detailsBookTitle).toContain('Test Book');
     expect(detailsBooktype).toContain(bookType);
-    expect(detailsBookImage).not.toBeNull;    
+    expect(detailsBookImage).not.toBeNull;
+});
+
+test('Verify if edit and delete buttons are visible for creator', async ({ page }) => {
+    await Promise.all([
+        login(page, 'peter@abv.bg', '123456'),
+        page.waitForURL(pageAllBooksUrl)
+    ]);
+    await page.click(allBooksLinkSelector);
+    await page.waitForSelector('.otherBooks');
+    await page.click('.otherBooks a.button');
+    await page.waitForSelector('.book-information');
+
+    const editButtonSelector = '.actions a.button:has-text("Edit")'
+    const editButton = await page.$(editButtonSelector);
+    const isEditButtonVisible = await editButton.isVisible();
+    expect(isEditButtonVisible).toBe(true);
+
+    const deleteButtonSelector = '.actions a.button:has-text("Delete")'
+    const deleteButton = await page.$(deleteButtonSelector);
+    const isDeleteButtonVisible = await deleteButton.isVisible();
+    expect(isDeleteButtonVisible).toBe(true);
+});
+
+
+test('Verify if edit and delete buttons are not visible for non-creator', async ({ page }) => {
+    await Promise.all([
+        login(page, 'john@abv.bg', '123456'),
+        page.waitForURL(pageAllBooksUrl)
+    ]);
+    await page.click(allBooksLinkSelector);
+    await page.waitForSelector('.otherBooks');
+    await page.click('.otherBooks a.button');
+    await page.waitForSelector('.book-information');
+
+    const editButtonSelector = '.actions a.button:has-text("Edit")'
+    const editButton = await page.$(editButtonSelector);
+    const isEditButtonNotVisible = editButton === null;
+    expect(isEditButtonNotVisible).toBe(true);
+
+    const deleteButtonSelector = '.actions a.button:has-text("Delete")'
+    const deleteButton = await page.$(deleteButtonSelector);
+    const isDeleteButtonNotVisible = deleteButton === null;
+    expect(isDeleteButtonNotVisible).toBe(true);
+});
+
+test('Verify if like button is not visible for creator', async ({ page }) => {
+    await Promise.all([
+        login(page, 'peter@abv.bg', '123456'),
+        page.waitForURL(pageAllBooksUrl)
+    ]);
+    await page.click(allBooksLinkSelector);
+    await page.waitForSelector('.otherBooks');
+    await page.click('.otherBooks a.button');
+    await page.waitForSelector('.book-information');
+
+    const editButtonSelector = '.actions a.button:has-text("Like")'
+    const editButton = await page.$(editButtonSelector);
+    const isEditButtonNotVisible = editButton === null;
+    expect(isEditButtonNotVisible).toBe(true);
+});
+
+test('Verify if like button is visible for non-creator', async ({ page }) => {
+    await Promise.all([
+        login(page, 'john@abv.bg', '123456'),
+        page.waitForURL(pageAllBooksUrl)
+    ]);
+    await page.click(allBooksLinkSelector);
+    await page.waitForSelector('.otherBooks');
+    await page.click('.otherBooks a.button');
+    await page.waitForSelector('.book-information');
+
+    const editButtonSelector = '.actions a.button:has-text("Like")'
+    const editButton = await page.$(editButtonSelector);
+    const isEditButtonVisible = await editButton.isVisible();
+    expect(isEditButtonVisible).toBe(true);
+});
+
+// "Logout" Functionality
+
+test('Verify logout button is visible', async ({ page }) => {
+    await login(page, userEmail, userPassword);
+    const logoutButton = await page.$(logoutButtonLinkSelector);
+    const isLogoutButtonVisible = await logoutButton.isVisible();
+    expect(isLogoutButtonVisible).toBe(true);
+});
+
+test('Verify logout button redirects correctly', async ({ page }) => {
+    await login(page, userEmail, userPassword);
+    const logoutButton = await page.$(logoutButtonLinkSelector);
+    await logoutButton.click();
+    const redirecedtUrl = page.url();
+    expect(redirecedtUrl).toBe(pageAllBooksUrl);
 });
