@@ -118,50 +118,34 @@ test('Login with valid credentials', async ({ page }) => {
 });
 
 test('Login with empty input fields', async ({ page }) => {
-    await login(page, "", "");
     page.on('dialog', async dialog => {
         expect(dialog.type()).toContain('alert');
         expect(dialog.message()).toContain('All fields are required!');
         await dialog.accept();
     });
+    await login(page, "", "");
     await page.$(loginButtonLinkSelector);
     expect(page.url()).toBe(pageLoginUrl);
 });
 
-test('Login with empty input fields 2', async ({ page }) => {
-    await page.goto('http://localhost:3000/login');
-    await page.click('input[type="submit"]');
-
-    page.on('dialog', async dialog => {
-        console.log('Actual alert message:', dialog.message());
-
-        expect(dialog.type()).toContain('alert');
-        expect(dialog.message()).toContain('1234');
-        await dialog.accept();
-    });
-
-    await page.$('a[href="/login"]');
-    expect(page.url()).toBe('http://localhost:3000/login');
-});
-
 test('Login with empty email and valid password input fields', async ({ page }) => {
-    await login(page, "", userPassword);
     page.on('dialog', async dialog => {
         expect(dialog.type()).toContain('alert');
         expect(dialog.message()).toContain('All fields are required!');
         await dialog.accept();
     });
+    await login(page, "", userPassword);
     await page.$(loginButtonLinkSelector);
     expect(page.url()).toBe(pageLoginUrl);
 });
 
 test('Login with valid email and empty password input fields', async ({ page }) => {
-    await login(page, userEmail, "");
     page.on('dialog', async dialog => {
         expect(dialog.type()).toContain('alert');
         expect(dialog.message()).toContain('All fields are required!');
         await dialog.accept();
     });
+    await login(page, userEmail, "");
     await page.$(loginButtonLinkSelector);
     expect(page.url()).toBe(pageLoginUrl);
 });
@@ -175,57 +159,57 @@ test('Rgister with valid values', async ({ page }) => {
 });
 
 test('Register with empty input fields', async ({ page }) => {
-    await page.goto(pageRegisterUrl);
-    await page.click('input[type="submit"]');
     page.on('dialog', async dialog => {
         expect(dialog.type()).toContain('alert');
         expect(dialog.message()).toContain('All fields are required!');
         await dialog.accept();
     });
+    await page.goto(pageRegisterUrl);
+    await page.click('input[type="submit"]');
     await page.$(registerButtonLinkSelector);
     expect(page.url()).toBe(pageRegisterUrl);
 });
 
 test('Register with empty email and valid password and valid confirm password input fields', async ({ page }) => {
-    await register(page, "", userPasswordRegister, userPasswordRegister)
     page.on('dialog', async dialog => {
         expect(dialog.type()).toContain('alert');
         expect(dialog.message()).toContain('All fields are required!');
         await dialog.accept();
     });
+    await register(page, "", userPasswordRegister, userPasswordRegister)
     await page.$(registerButtonLinkSelector);
     expect(page.url()).toBe(pageRegisterUrl);
 });
 
 test('Register with valid email and empty password and valid confirm password input fields', async ({ page }) => {
-    await register(page, userEmailRegister, "", userPasswordRegister)
     page.on('dialog', async dialog => {
         expect(dialog.type()).toContain('alert');
         expect(dialog.message()).toContain('All fields are required!');
         await dialog.accept();
     });
+    await register(page, userEmailRegister, "", userPasswordRegister)
     await page.$(registerButtonLinkSelector);
     expect(page.url()).toBe(pageRegisterUrl);
 });
 
 test('Register with valid email and valid password and empty confirm password input fields', async ({ page }) => {
-    await register(page, userEmailRegister, userPasswordRegister, "")
     page.on('dialog', async dialog => {
         expect(dialog.type()).toContain('alert');
         expect(dialog.message()).toContain('All fields are required!');
         await dialog.accept();
     });
+    await register(page, userEmailRegister, userPasswordRegister, "")
     await page.$(registerButtonLinkSelector);
     expect(page.url()).toBe(pageRegisterUrl);
 });
 
 test('Register with valid email and different passwords input fields', async ({ page }) => {
-    await register(page, userEmailRegister, userPasswordRegister, `${userPasswordRegister}123`)
     page.on('dialog', async dialog => {
         expect(dialog.type()).toContain('alert');
         expect(dialog.message()).toContain('Passwords don\'t match!');
         await dialog.accept();
     });
+    await register(page, userEmailRegister, userPasswordRegister, `${userPasswordRegister}123`)
     await page.$(registerButtonLinkSelector);
     expect(page.url()).toBe(pageRegisterUrl);
 });
@@ -251,12 +235,12 @@ test('Add book with empty title field', async ({ page }) => {
     ]);
     await page.click(addBookLinkSelector);
     await page.waitForSelector(addBookFormSelector);
-    await fillAddBookForm(page, "", bookDescription, bookImage, bookType);
     page.on('dialog', async dialog => {
         expect(dialog.type()).toContain('alert');
         expect(dialog.message()).toContain('All fields are required!');
         await dialog.accept();
     });
+    await fillAddBookForm(page, "", bookDescription, bookImage, bookType);
     await page.$(addBookLinkSelector);
     expect(page.url()).toBe(pageAddBookUrl);
 });
@@ -268,12 +252,12 @@ test('Add book with empty description field', async ({ page }) => {
     ]);
     await page.click(addBookLinkSelector);
     await page.waitForSelector(addBookFormSelector);
-    await fillAddBookForm(page, bookTitle, "", bookImage, bookType);
     page.on('dialog', async dialog => {
         expect(dialog.type()).toContain('alert');
         expect(dialog.message()).toContain('All fields are required!');
         await dialog.accept();
     });
+    await fillAddBookForm(page, bookTitle, "", bookImage, bookType);
     await page.$(addBookLinkSelector);
     expect(page.url()).toBe(pageAddBookUrl);
 });
@@ -285,12 +269,12 @@ test('Add book with empty URL image field', async ({ page }) => {
     ]);
     await page.click(addBookLinkSelector);
     await page.waitForSelector(addBookFormSelector);
-    await fillAddBookForm(page, bookTitle, bookDescription, "", bookType);
     page.on('dialog', async dialog => {
         expect(dialog.type()).toContain('alert');
         expect(dialog.message()).toContain('All fields are required!');
         await dialog.accept();
     });
+    await fillAddBookForm(page, bookTitle, bookDescription, "", bookType);
     await page.$(addBookLinkSelector);
     expect(page.url()).toBe(pageAddBookUrl);
 });
