@@ -23,6 +23,7 @@ const registerButtonLinkSelector = 'a[href="/register"]';
 const myBooksLinkSelector = 'a[href="/profile"]';
 const addBookLinkSelector = 'a[href="/create"]'
 const addBookFormSelector = "#create-form"
+const allBooksListSelector = "#dashboard-page"
 
 // Define the login function
 async function login(page, email, password) {
@@ -281,3 +282,64 @@ test('Add book with empty URL image field', async ({ page }) => {
 
 // "All Books" Page
 
+test('Login and verify all books are displayed', async ({ page }) => {
+    await Promise.all([
+        login(page, userEmail, userPassword),
+        page.waitForURL(pageAllBooksUrl)
+    ]);
+    await page.waitForSelector(allBooksListSelector);
+    const bookElements = await page.$$('.other-books-list li');
+    expect(bookElements.length).toBeGreaterThan(0);
+});
+
+// Uncomment the test if no books in the database.
+/*
+test.only('Verify no books are displayed', async ({ page }) => {
+    await Promise.all([
+        login(page, userEmail, userPassword),
+        page.waitForURL(pageAllBooksUrl)
+    ]);
+    await page.waitForSelector(allBooksListSelector);
+    const noBooksMessage = await page.textContent('.no-books');
+    expect(noBooksMessage).toBe('No books in database!');
+});
+*/
+
+// "Details" Page
+
+test('Login and verify Details button works', async ({ page }) => {
+    await Promise.all([
+        login(page, userEmail, userPassword),
+        page.waitForURL(pageAllBooksUrl)
+    ]);
+    await page.click(allBooksLinkSelector);
+    await page.waitForSelector('.otherBooks');
+    await page.click('.otherBooks a.button');
+    await page.waitForSelector('.book-information');
+    const detailsBookTitle = await page.textContent('.book-information h3');
+    expect(detailsBookTitle).toContain('Test Book');
+});
+
+test('Verify Details button works for guest', async ({ page }) => {
+    await page.goto(pageAllBooksUrl);
+    await page.click(allBooksLinkSelector);
+    await page.waitForSelector('.otherBooks');
+    await page.click('.otherBooks a.button');
+    await page.waitForSelector('.book-information');
+    const detailsBookTitle = await page.textContent('.book-information h3');
+    expect(detailsBookTitle).toContain('Test Book');
+});
+
+test('Verify Details page display all book information', async({page})=>{
+    await page.goto(pageAllBooksUrl);
+    await page.click(allBooksLinkSelector);
+    await page.waitForSelector('.otherBooks');
+    await page.click('.otherBooks a.button');
+    await page.waitForSelector('.book-information');
+    const detailsBookTitle = await page.textContent('.book-information h3');
+    const detailsBooktype = await page.textContent('.type');
+    const detailsBookImage = await page.textContent('.img');
+    expect(detailsBookTitle).toContain('Test Book');
+    expect(detailsBooktype).toContain(bookType);
+    expect(detailsBookImage).not.toBeNull;    
+});
